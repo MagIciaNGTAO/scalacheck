@@ -9,14 +9,14 @@
 
 package org.scalacheck
 
-import Prop.{forAll, BooleanOperators}
+import Prop.{ forAll, BooleanOperators }
 import Shrink.shrink
 
 object ShrinkSpecification extends Properties("Shrink") {
 
-  private def shrinkClosure[T : Shrink](x: T): Stream[T] = {
+  private def shrinkClosure[T: Shrink](x: T): Stream[T] = {
     val xs = shrink[T](x)
-    if(xs.isEmpty) xs
+    if (xs.isEmpty) xs
     else xs.append(xs.take(1).map(shrinkClosure[T]).flatten)
   }
 

@@ -13,10 +13,8 @@ package util
 import collection._
 
 object BuildableSpecification {
-  def container[C[_]](implicit
-    evb: Buildable[String, C],
-    evt: C[String] => Traversable[String]
-  ) = Gen.containerOf[C, String](Gen.alphaStr)
+  def container[C[_]](implicit evb: Buildable[String, C],
+    evt: C[String] => Traversable[String]) = Gen.containerOf[C, String](Gen.alphaStr)
 
   implicit val listGen: Gen[List[String]] = container[List]
 
@@ -27,7 +25,7 @@ object BuildableSpecification {
   implicit val mutableSetGen: Gen[mutable.Set[String]] = container[mutable.Set]
 
   implicit val setGen: Gen[Set[String]] = container[Set]
-    
+
   implicit val immutableSortedSetGen: Gen[immutable.SortedSet[String]] = container[immutable.SortedSet]
 
   implicit val vectorGen: Gen[Vector[String]] = container[Vector]

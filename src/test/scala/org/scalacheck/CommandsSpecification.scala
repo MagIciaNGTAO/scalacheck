@@ -10,7 +10,7 @@
 package org.scalacheck
 
 import Gen._
-import Prop.{forAll, someFailing, noneFailing}
+import Prop.{ forAll, someFailing, noneFailing }
 import Arbitrary._
 import Shrink._
 
@@ -19,9 +19,8 @@ object CommandsSpecification extends Properties("Commands") {
   property("setcommands") = SimpleSetCommandsSpec
 
   private object SimpleSetCommandsSpec extends Commands {
-    case class State (
-      results: List[Binding]
-    )
+    case class State(
+      results: List[Binding])
 
     def initialState = State(Nil)
 
@@ -33,9 +32,9 @@ object CommandsSpecification extends Properties("Commands") {
       def nextState(s: State, b: Binding) = s.copy(results = s.results :+ b)
       def run(s: State) = n
       postConditions += {
-        case (s0,s1,r) =>
-          (s1.results.length == s0.results.length+1) &&
-          s1.results.last.get == n
+        case (s0, s1, r) =>
+          (s1.results.length == s0.results.length + 1) &&
+            s1.results.last.get == n
       }
     }
   }

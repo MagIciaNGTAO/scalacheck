@@ -132,14 +132,16 @@ trait Commands extends Prop {
    *  initial state, and return the abstract version of that state. */
   def initialState(): State
 
-  /** The command generator. Given an abstract state, the generator
+  /**
+   * The command generator. Given an abstract state, the generator
    *  should return a command that is allowed to run in that state. Note that
    *  it is still neccessary to define preconditions on the commands if there
    *  are any. The generator is just giving a hint of which commands that are
    *  suitable for a given state, the preconditions will still be checked before
    *  a command runs. Sometimes you maybe want to adjust the distribution of
    *  your command generator according to the state, or do other calculations
-   *  based on the state. */
+   *  based on the state.
+   */
   def genCommand(s: State): Gen[Command]
 
 }

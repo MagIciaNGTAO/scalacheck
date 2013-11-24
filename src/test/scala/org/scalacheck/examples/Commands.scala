@@ -10,7 +10,7 @@
 package org.scalacheck
 
 import Gen._
-import Prop.{forAll, someFailing, noneFailing}
+import Prop.{ forAll, someFailing, noneFailing }
 import Arbitrary._
 import Shrink._
 
@@ -36,9 +36,8 @@ object CommandsExamples extends Properties("CommandsExamples") {
 
     var sut = Counter(0)
 
-    case class State (
-      n: Int
-    )
+    case class State(
+      n: Int)
 
     def initialState = {
       sut = Counter(0)
@@ -51,7 +50,7 @@ object CommandsExamples extends Properties("CommandsExamples") {
       def nextState(s: State) = s.copy(s.n + 1)
       def run(s: State) = sut.inc
       postConditions += {
-        case (s0,s1,r) => r == s1.n
+        case (s0, s1, r) => r == s1.n
       }
     }
 
@@ -59,7 +58,7 @@ object CommandsExamples extends Properties("CommandsExamples") {
       def nextState(s: State) = s.copy(s.n - 1)
       def run(s: State) = sut.dec
       postConditions += {
-        case (s0,s1,r) => r == s1.n
+        case (s0, s1, r) => r == s1.n
       }
     }
 
@@ -67,7 +66,7 @@ object CommandsExamples extends Properties("CommandsExamples") {
       def nextState(s: State) = s
       def run(s: State) = sut.get
       postConditions += {
-        case (s0,s1,r) => r == s1.n
+        case (s0, s1, r) => r == s1.n
       }
     }
 

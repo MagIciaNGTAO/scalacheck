@@ -9,10 +9,11 @@
 
 package org.scalacheck.util
 
-import Pretty.{Params, pretty, format}
-import org.scalacheck.{Prop, Properties, Test}
+import Pretty.{ Params, pretty, format }
+import org.scalacheck.{ Prop, Properties, Test }
 
-/** A [[org.scalacheck.Test.TestCallback]] implementation that prints
+/**
+ * A [[org.scalacheck.Test.TestCallback]] implementation that prints
  *  test results directly to the console. This is the callback used
  *  by ScalaCheck's command line test runner, and when you run [[org.scalacheck.Prop!.check:Unit*]]
  */
@@ -21,12 +22,12 @@ class ConsoleReporter(val verbosity: Int) extends Test.TestCallback {
   private val prettyPrms = Params(verbosity)
 
   override def onTestResult(name: String, res: Test.Result) = {
-    if(verbosity > 0) {
-      if(name == "") {
-        val s = (if(res.passed) "+ " else "! ") + pretty(res, prettyPrms)
+    if (verbosity > 0) {
+      if (name == "") {
+        val s = (if (res.passed) "+ " else "! ") + pretty(res, prettyPrms)
         printf("\r%s\n", format(s, "", "", 75))
       } else {
-        val s = (if(res.passed) "+ " else "! ") + name + ": " +
+        val s = (if (res.passed) "+ " else "! ") + name + ": " +
           pretty(res, prettyPrms)
         printf("\r%s\n", format(s, "", "", 75))
       }
@@ -37,8 +38,10 @@ class ConsoleReporter(val verbosity: Int) extends Test.TestCallback {
 
 object ConsoleReporter {
 
-  /** Factory method, creates a ConsoleReporter with the
-   *  the given verbosity */
+  /**
+   * Factory method, creates a ConsoleReporter with the
+   *  the given verbosity
+   */
   def apply(verbosity: Int = 0) = new ConsoleReporter(verbosity)
 
 }

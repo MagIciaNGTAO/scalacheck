@@ -48,12 +48,12 @@ private[scalacheck] trait CmdLineParser extends Parsers {
       val lineContents = args.mkString(" ")
     }
     val atEnd = i >= args.length
-    def first = if(atEnd) null else args(i)
-    def rest = if(atEnd) this else new ArgsReader(args, i+1)
+    def first = if (atEnd) null else args(i)
+    def rest = if (atEnd) this else new ArgsReader(args, i + 1)
   }
 
   private def getOpt(s: String) = {
-    if(s == null || s.length == 0 || s.charAt(0) != '-') None
+    if (s == null || s.length == 0 || s.charAt(0) != '-') None
     else opts.find(_.names.contains(s.drop(1)))
   }
 
@@ -70,8 +70,7 @@ private[scalacheck] trait CmdLineParser extends Parsers {
   })
 
   private val floatVal: Parser[Float] = accept("float", {
-    case s if s != null && s.matches("[0987654321]+\\.?[0987654321]*")
-      => s.toFloat
+    case s if s != null && s.matches("[0987654321]+\\.?[0987654321]*") => s.toFloat
   })
 
   private case class OptVal[T](o: Opt[T], v: T)
@@ -85,17 +84,17 @@ private[scalacheck] trait CmdLineParser extends Parsers {
 
   val options: Parser[OptMap] = rep(optVal) ^^ { xs =>
     val map = new OptMap
-    xs.foreach { case OptVal(o,v) => map(o) = v }
+    xs.foreach { case OptVal(o, v) => map(o) = v }
     map
   }
 
   def printHelp = {
     println("Available options:")
     opts.foreach { opt =>
-      println("  " + opt.names.map("-"+_).mkString(", ") + ": " + opt.help)
+      println("  " + opt.names.map("-" + _).mkString(", ") + ": " + opt.help)
     }
   }
 
   def parseArgs[T](args: Array[String])(f: OptMap => T) =
-    phrase(options map f)(new ArgsReader(args,0))
+    phrase(options map f)(new ArgsReader(args, 0))
 }

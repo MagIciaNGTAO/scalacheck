@@ -10,12 +10,34 @@
 package org.scalacheck
 
 import Prop.{
-  forAll, falsified, undecided, exception, passed, proved, all,
-  atLeastOne, sizedProp, someFailing, noneFailing, Undecided, False, True,
-  Exception, Proof, within, throws, BooleanOperators
+  forAll,
+  falsified,
+  undecided,
+  exception,
+  passed,
+  proved,
+  all,
+  atLeastOne,
+  sizedProp,
+  someFailing,
+  noneFailing,
+  Undecided,
+  False,
+  True,
+  Exception,
+  Proof,
+  within,
+  throws,
+  BooleanOperators
 }
 import Gen.{
-  const, fail, frequency, oneOf, choose, listOf, listOfN,
+  const,
+  fail,
+  frequency,
+  oneOf,
+  choose,
+  listOf,
+  listOfN,
   Parameters
 }
 import java.util.concurrent.atomic.AtomicBoolean
@@ -23,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 object PropSpecification extends Properties("Prop") {
 
   property("Prop.==> undecided") = forAll { p1: Prop =>
-    val g = oneOf(falsified,undecided)
+    val g = oneOf(falsified, undecided)
     forAll(g) { p2 =>
       val p3 = (p2 ==> p1)
       p3 == undecided || (p3 == exception && p1 == exception)
@@ -31,11 +53,12 @@ object PropSpecification extends Properties("Prop") {
   }
 
   property("Prop.==> true") = {
-    val g1 = oneOf(proved,falsified,undecided,exception)
-    val g2 = oneOf(passed,proved)
-    forAll(g1, g2) { case (p1,p2) =>
-      val p = p2 ==> p1
-      (p == p1) || (p2 == passed && p1 == proved && p == passed)
+    val g1 = oneOf(proved, falsified, undecided, exception)
+    val g2 = oneOf(passed, proved)
+    forAll(g1, g2) {
+      case (p1, p2) =>
+        val p = p2 ==> p1
+        (p == p1) || (p2 == passed && p1 == proved && p == passed)
     }
   }
 
@@ -59,14 +82,14 @@ object PropSpecification extends Properties("Prop") {
   }
 
   property("Prop.&& Commutativity") = {
-    val g = oneOf(proved,passed,falsified,undecided,exception)
-    forAll(g,g) { case (p1,p2) => (p1 && p2) == (p2 && p1) }
+    val g = oneOf(proved, passed, falsified, undecided, exception)
+    forAll(g, g) { case (p1, p2) => (p1 && p2) == (p2 && p1) }
   }
   property("Prop.&& Exception") = forAll { p: Prop =>
     (p && exception) == exception
   }
   property("Prop.&& Identity") = {
-    val g = oneOf(proved,passed,falsified,undecided,exception)
+    val g = oneOf(proved, passed, falsified, undecided, exception)
     forAll(g)(p => (p && proved) == p)
   }
   property("Prop.&& False") = forAll { p: Prop =>
@@ -74,7 +97,7 @@ object PropSpecification extends Properties("Prop") {
     q == falsified || (q == exception && p == exception)
   }
   property("Prop.&& Undecided") = {
-    val g = oneOf(proved,passed,undecided)
+    val g = oneOf(proved, passed, undecided)
     forAll(g)(p => (p && undecided) == undecided)
   }
   property("Prop.&& Right prio") = forAll { (sz: Int, prms: Parameters) =>
@@ -83,42 +106,42 @@ object PropSpecification extends Properties("Prop") {
   }
 
   property("Prop.|| Commutativity") = {
-    val g = oneOf(proved,passed,falsified,undecided,exception)
-    forAll(g,g) { case (p1,p2) => (p1 || p2) == (p2 || p1) }
+    val g = oneOf(proved, passed, falsified, undecided, exception)
+    forAll(g, g) { case (p1, p2) => (p1 || p2) == (p2 || p1) }
   }
   property("Prop.|| Exception") = forAll { p: Prop =>
     (p || exception) == exception
   }
   property("Prop.|| Identity") = {
-    val g = oneOf(proved,passed,falsified,undecided,exception)
+    val g = oneOf(proved, passed, falsified, undecided, exception)
     forAll(g)(p => (p || falsified) == p)
   }
   property("Prop.|| True") = {
-    val g = oneOf(proved,passed,falsified,undecided)
+    val g = oneOf(proved, passed, falsified, undecided)
     forAll(g)(p => (p || proved) == proved)
   }
   property("Prop.|| Undecided") = {
-    val g = oneOf(falsified,undecided)
+    val g = oneOf(falsified, undecided)
     forAll(g)(p => (p || undecided) == undecided)
   }
 
   property("Prop.++ Commutativity") = {
-    val g = oneOf(proved,passed,falsified,undecided,exception)
-    forAll(g,g) { case (p1,p2) => (p1 ++ p2) == (p2 ++ p1) }
+    val g = oneOf(proved, passed, falsified, undecided, exception)
+    forAll(g, g) { case (p1, p2) => (p1 ++ p2) == (p2 ++ p1) }
   }
   property("Prop.++ Exception") = forAll { p: Prop =>
     (p ++ exception) == exception
   }
   property("Prop.++ Identity 1") = {
-    val g = oneOf(falsified,passed,proved,exception)
+    val g = oneOf(falsified, passed, proved, exception)
     forAll(g)(p => (p ++ proved) == p)
   }
   property("Prop.++ Identity 2") = {
-    val g = oneOf(proved,passed,falsified,undecided,exception)
+    val g = oneOf(proved, passed, falsified, undecided, exception)
     forAll(g)(p => (p ++ undecided) == p)
   }
   property("Prop.++ False") = {
-    val g = oneOf(falsified,passed,proved,undecided)
+    val g = oneOf(falsified, passed, proved, undecided)
     forAll(g)(p => (p ++ falsified) == falsified)
   }
 
@@ -138,14 +161,14 @@ object PropSpecification extends Properties("Prop") {
     exception(e)(prms).status == Exception(e)
   }
 
-  property("all") = forAll(Gen.nonEmptyListOf(const(proved)))(l => all(l:_*))
+  property("all") = forAll(Gen.nonEmptyListOf(const(proved)))(l => all(l: _*))
 
   property("atLeastOne") = forAll(Gen.nonEmptyListOf(const(proved))) { l =>
-    atLeastOne(l:_*)
+    atLeastOne(l: _*)
   }
 
   property("throws") = forAll { n: Int =>
-    if (n == 0) throws(classOf[ArithmeticException]) { 1/0 }
+    if (n == 0) throws(classOf[ArithmeticException]) { 1 / 0 }
     else true
   }
 
@@ -156,14 +179,14 @@ object PropSpecification extends Properties("Prop") {
         r
       }))
 
-      if(sleep < 0.9*timeout) q == passed
-      else if (sleep < 1.1*timeout) passed
+      if (sleep < 0.9 * timeout) q == passed
+      else if (sleep < 1.1 * timeout) passed
       else q == falsified
     }
   }
 
   property("sizedProp") = {
-    val g = oneOf(passed,falsified,undecided,exception)
+    val g = oneOf(passed, falsified, undecided, exception)
     forAll(g) { p => p == sizedProp(_ => p) }
   }
 

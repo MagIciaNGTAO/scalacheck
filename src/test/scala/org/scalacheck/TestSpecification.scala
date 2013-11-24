@@ -19,21 +19,20 @@ object TestSpecification extends Properties("Test") {
 
   val proved: Prop = 1 + 1 == 2
 
-  val passing = forAll( (n: Int) => n == n )
+  val passing = forAll((n: Int) => n == n)
 
-  val failing = forAll( (n: Int) => false )
+  val failing = forAll((n: Int) => false)
 
-  val exhausted = forAll( (n: Int) =>
-    (n > 0 && n < 0) ==> (n == n)
-  )
+  val exhausted = forAll((n: Int) =>
+    (n > 0 && n < 0) ==> (n == n))
 
-  val shrinked = forAll( (t: (Int,Int,Int)) => false )
+  val shrinked = forAll((t: (Int, Int, Int)) => false)
 
-  val propException = forAll { n:Int => throw new java.lang.Exception; true }
+  val propException = forAll { n: Int => throw new java.lang.Exception; true }
 
-  val undefinedInt = for{
+  val undefinedInt = for {
     n <- arbitrary[Int]
-  } yield n/0
+  } yield n / 0
 
   val genException = forAll(undefinedInt)((n: Int) => true)
 
@@ -42,7 +41,7 @@ object TestSpecification extends Properties("Test") {
 
     val cb = new Test.TestCallback {
       override def onPropEval(n: String, threadIdx: Int, s: Int, d: Int) = {
-        res = res && threadIdx >= 0 && threadIdx <= (prms.workers-1)
+        res = res && threadIdx >= 0 && threadIdx <= (prms.workers - 1)
       }
     }
 
@@ -55,11 +54,11 @@ object TestSpecification extends Properties("Test") {
   property("minSuccessfulTests") = forAll { (prms: Test.Parameters, p: Prop) =>
     val r = Test.check(prms, p)
     r.status match {
-      case Passed => r.status+", s="+r.succeeded+", d="+r.discarded |:
+      case Passed => r.status + ", s=" + r.succeeded + ", d=" + r.discarded |:
         r.succeeded >= prms.minSuccessfulTests
-      case Exhausted => r.status+", s="+r.succeeded+", d="+r.discarded |:
+      case Exhausted => r.status + ", s=" + r.succeeded + ", d=" + r.discarded |:
         r.succeeded + r.discarded >= prms.minSuccessfulTests
-      case _ => r.status+", s="+r.succeeded+", d="+r.discarded |:
+      case _ => r.status + ", s=" + r.succeeded + ", d=" + r.discarded |:
         r.succeeded < prms.minSuccessfulTests
     }
   }
@@ -67,11 +66,11 @@ object TestSpecification extends Properties("Test") {
   property("maxDiscardRatio") = forAll { (prms: Test.Parameters, p: Prop) =>
     val r = Test.check(prms, p)
     r.status match {
-      case Passed => r.status+", s="+r.succeeded+", d="+r.discarded |:
-        r.discarded <= prms.maxDiscardRatio*r.succeeded
-      case Exhausted => r.status+", s="+r.succeeded+", d="+r.discarded |:
-        r.discarded > prms.maxDiscardRatio*r.succeeded
-      case _ => r.status+", s="+r.succeeded+", d="+r.discarded |:
+      case Passed => r.status + ", s=" + r.succeeded + ", d=" + r.discarded |:
+        r.discarded <= prms.maxDiscardRatio * r.succeeded
+      case Exhausted => r.status + ", s=" + r.succeeded + ", d=" + r.discarded |:
+        r.discarded > prms.maxDiscardRatio * r.succeeded
+      case _ => r.status + ", s=" + r.succeeded + ", d=" + r.discarded |:
         true
     }
   }
@@ -83,7 +82,7 @@ object TestSpecification extends Properties("Test") {
 
   property("propFailing") = forAll { prms: Test.Parameters =>
     Test.check(prms, failing).status match {
-      case _:Failed => true
+      case _: Failed => true
       case _ => false
     }
   }
@@ -94,7 +93,7 @@ object TestSpecification extends Properties("Test") {
 
   property("propProved") = forAll { prms: Test.Parameters =>
     Test.check(prms, proved).status match {
-      case _:Test.Proved => true
+      case _: Test.Proved => true
       case _ => false
     }
   }
@@ -105,21 +104,21 @@ object TestSpecification extends Properties("Test") {
 
   property("propPropException") = forAll { prms: Test.Parameters =>
     Test.check(prms, propException).status match {
-      case _:PropException => true
+      case _: PropException => true
       case _ => false
     }
   }
 
   property("propGenException") = forAll { prms: Test.Parameters =>
     Test.check(prms, genException).status match {
-      case _:GenException => true
+      case _: GenException => true
       case _ => false
     }
   }
 
   property("propShrinked") = forAll { prms: Test.Parameters =>
     Test.check(prms, shrinked).status match {
-      case Failed(Arg(_,(x:Int,y:Int,z:Int),_,_,_,_)::Nil,_) =>
+      case Failed(Arg(_, (x: Int, y: Int, z: Int), _, _, _, _) :: Nil, _) =>
         x == 0 && y == 0 && z == 0
       case x => false
     }

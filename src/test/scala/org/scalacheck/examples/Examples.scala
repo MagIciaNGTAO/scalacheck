@@ -1,6 +1,6 @@
 package org.scalacheck.examples
 
-import org.scalacheck.{Prop, Properties}
+import org.scalacheck.{ Prop, Properties }
 
 object Examples extends Properties("Examples") {
 
@@ -16,20 +16,19 @@ object Examples extends Properties("Examples") {
     }
   }
 
-  case class Person (
+  case class Person(
     firstName: String,
     lastName: String,
-    age: Int 
-  ) { 
+    age: Int) {
     def isTeenager = age >= 13 && age <= 19
-  } 
+  }
 
   val genPerson = {
-    import org.scalacheck.Gen.{choose, oneOf}
+    import org.scalacheck.Gen.{ choose, oneOf }
     for {
       firstName <- oneOf("Alan", "Ada", "Alonzo")
       lastName <- oneOf("Lovelace", "Turing", "Church")
-      age <- choose(1,100)
+      age <- choose(1, 100)
     } yield Person(firstName, lastName, age)
   }
 

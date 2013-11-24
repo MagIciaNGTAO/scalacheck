@@ -11,7 +11,8 @@ package org.scalacheck
 
 import util.ConsoleReporter
 
-/** Represents a collection of properties, with convenient methods
+/**
+ * Represents a collection of properties, with convenient methods
  *  for checking all properties at once. This class is itself a property, which
  *  holds if and only if all of the contained properties hold.
  *  <p>Properties are added in the following way:</p>
@@ -26,34 +27,42 @@ import util.ConsoleReporter
  */
 class Properties(val name: String) extends Prop {
 
-  import Test.cmdLineParser.{Success, NoSuccess}
+  import Test.cmdLineParser.{ Success, NoSuccess }
 
-  private val props = new scala.collection.mutable.ListBuffer[(String,Prop)]
+  private val props = new scala.collection.mutable.ListBuffer[(String, Prop)]
 
-  /** Returns one property which holds if and only if all of the
-   *  properties in this property collection hold */
-  private def oneProperty: Prop = Prop.all((properties map (_._2)):_*)
+  /**
+   * Returns one property which holds if and only if all of the
+   *  properties in this property collection hold
+   */
+  private def oneProperty: Prop = Prop.all((properties map (_._2)): _*)
 
-  /** Returns all properties of this collection in a list of name/property
-   *  pairs.  */
-  def properties: Seq[(String,Prop)] = props
+  /**
+   * Returns all properties of this collection in a list of name/property
+   *  pairs.
+   */
+  def properties: Seq[(String, Prop)] = props
 
   def apply(p: Gen.Parameters) = oneProperty(p)
 
-  /** Convenience method that checks the properties with the given parameters
+  /**
+   * Convenience method that checks the properties with the given parameters
    *  and reports the result on the console. If you need to get the results
    *  from the test use the `check` methods in [[org.scalacheck.Test]]
-   *  instead. */
+   *  instead.
+   */
   override def check(prms: Test.Parameters): Unit = Test.checkProperties(
-    prms copy (_testCallback = ConsoleReporter(1) chain prms.testCallback), this
-  )
+    prms copy (_testCallback = ConsoleReporter(1) chain prms.testCallback), this)
 
-  /** Convenience method that checks the properties and reports the
+  /**
+   * Convenience method that checks the properties and reports the
    *  result on the console. If you need to get the results from the test use
-   *  the `check` methods in [[org.scalacheck.Test]] instead. */
+   *  the `check` methods in [[org.scalacheck.Test]] instead.
+   */
   override def check: Unit = check(Test.Parameters.default)
 
-  /** The logic for main, separated out to make it easier to
+  /**
+   * The logic for main, separated out to make it easier to
    *  avoid System.exit calls.  Returns exit code.
    */
   override def mainRunner(args: Array[String]): Int = {
@@ -63,22 +72,23 @@ class Properties(val name: String) extends Prop {
         val failed = res.filter(!_._2.passed).size
         failed
       case e: NoSuccess =>
-        println("Incorrect options:"+"\n"+e+"\n")
+        println("Incorrect options:" + "\n" + e + "\n")
         Test.cmdLineParser.printHelp
         -1
     }
   }
 
   /** Adds all properties from another property collection to this one. */
-  def include(ps: Properties) = for((n,p) <- ps.properties) property(n) = p
+  def include(ps: Properties) = for ((n, p) <- ps.properties) property(n) = p
 
-  /** Used for specifying properties. Usage:
+  /**
+   * Used for specifying properties. Usage:
    *  {{{
    *  property("myProp") = ...
    *  }}}
    */
   class PropertySpecifier() {
-    def update(propName: String, p: Prop) = props += ((name+"."+propName, p))
+    def update(propName: String, p: Prop) = props += ((name + "." + propName, p))
   }
 
   lazy val property = new PropertySpecifier()

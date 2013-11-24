@@ -29,7 +29,7 @@ class ScalaCheckFramework extends Framework {
 
   val tests = Array[Fingerprint](PropsFingerprint, PropsFingerprint)
 
-  def testRunner(loader: ClassLoader,  loggers: Array[Logger]) = new Runner2 {
+  def testRunner(loader: ClassLoader, loggers: Array[Logger]) = new Runner2 {
 
     private def asEvent(nr: (String, Test.Result)) = nr match {
       case (n: String, r: Test.Result) => new Event {
@@ -37,14 +37,14 @@ class ScalaCheckFramework extends Framework {
         val description = n
         val result = r.status match {
           case Test.Passed => Result.Success
-          case _:Test.Proved => Result.Success
-          case _:Test.Failed => Result.Failure
+          case _: Test.Proved => Result.Success
+          case _: Test.Failed => Result.Failure
           case Test.Exhausted => Result.Skipped
-          case _:Test.PropException | _:Test.GenException => Result.Error
+          case _: Test.PropException | _: Test.GenException => Result.Error
         }
         val error = r.status match {
           case Test.PropException(_, e, _) => e
-          case _:Test.Failed => new Exception(Pretty.pretty(r,Pretty.Params(0)))
+          case _: Test.Failed => new Exception(Pretty.pretty(r, Pretty.Params(0)))
           case _ => null
         }
       }
@@ -59,14 +59,13 @@ class ScalaCheckFramework extends Framework {
           for (l <- loggers) {
             import Pretty._
             l.info(
-              (if (r.passed) "+ " else "! ") + n + ": " + pretty(r, Params(0))
-            )
+              (if (r.passed) "+ " else "! ") + n + ": " + pretty(r, Params(0)))
           }
-          handler.handle(asEvent((n,r)))
+          handler.handle(asEvent((n, r)))
         }
       }
 
-      import Test.cmdLineParser.{Success, NoSuccess}
+      import Test.cmdLineParser.{ Success, NoSuccess }
       val prms = Test.cmdLineParser.parseParams(args) match {
         case Success(params, _) =>
           params.copy(_testCallback = testCallback, _customClassLoader = Some(loader))
@@ -76,7 +75,7 @@ class ScalaCheckFramework extends Framework {
 
       fingerprint match {
         case fp: SubclassFingerprint =>
-          if(fp.isModule) {
+          if (fp.isModule) {
             val obj = Class.forName(testClassName + "$", true, loader)
             val ps = obj.getField("MODULE$").get(null).asInstanceOf[Properties]
             Test.checkProperties(prms, ps)

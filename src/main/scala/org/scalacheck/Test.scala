@@ -13,12 +13,14 @@ import Prop.Arg
 
 object Test {
 
-  import util.{FreqMap, CmdLineParser, ConsoleReporter}
+  import util.{ FreqMap, CmdLineParser, ConsoleReporter }
 
   /** Test parameters used by the [[Test.check]] method. */
   trait Parameters {
-    /** The minimum number of tests that must succeed for ScalaCheck to
-     *  consider a property passed. */
+    /**
+     * The minimum number of tests that must succeed for ScalaCheck to
+     *  consider a property passed.
+     */
     val minSuccessfulTests: Int
 
     /** The starting size given as parameter to the generators. */
@@ -36,9 +38,11 @@ object Test {
     /** A callback that ScalaCheck calls each time a test is executed. */
     val testCallback: TestCallback
 
-    /** The maximum ratio between discarded and passed tests allowed before
+    /**
+     * The maximum ratio between discarded and passed tests allowed before
      *  ScalaCheck gives up and discards the property. At least
-     *  `minSuccesfulTests` will always be run, though. */
+     *  `minSuccesfulTests` will always be run, though.
+     */
     val maxDiscardRatio: Float
 
     /** A custom class loader that should be used during test execution. */
@@ -53,8 +57,7 @@ object Test {
       _workers: Int = Parameters.this.workers,
       _testCallback: TestCallback = Parameters.this.testCallback,
       _maxDiscardRatio: Float = Parameters.this.maxDiscardRatio,
-      _customClassLoader: Option[ClassLoader] = Parameters.this.customClassLoader
-    ): Parameters = new Parameters {
+      _customClassLoader: Option[ClassLoader] = Parameters.this.customClassLoader): Parameters = new Parameters {
       val minSuccessfulTests: Int = _minSuccessfulTests
       val minSize: Int = _minSize
       val maxSize: Int = _maxSize
@@ -66,7 +69,8 @@ object Test {
     }
   }
 
-  /** Test parameters used by the [[Test.check]] method.
+  /**
+   * Test parameters used by the [[Test.check]] method.
    *
    *  To override default values, extend the
    *  [[org.scalacheck.Test.Parameters.Default]] trait:
@@ -79,8 +83,10 @@ object Test {
    *  }}}
    */
   object Parameters {
-    /** Default test parameters trait. This can be overriden if you need to
-     *  tweak the parameters. */
+    /**
+     * Default test parameters trait. This can be overriden if you need to
+     *  tweak the parameters.
+     */
     trait Default extends Parameters {
       val minSuccessfulTests: Int = 100
       val minSize: Int = 0
@@ -107,8 +113,7 @@ object Test {
     succeeded: Int,
     discarded: Int,
     freqMap: FreqMap[Set[Any]],
-    time: Long = 0
-  ) {
+    time: Long = 0) {
     def passed = status match {
       case Passed => true
       case Proved(_) => true
@@ -119,8 +124,10 @@ object Test {
   /** Test status */
   sealed trait Status
 
-  /** ScalaCheck found enough cases for which the property holds, so the
-   *  property is considered correct. (It is not proved correct, though). */
+  /**
+   * ScalaCheck found enough cases for which the property holds, so the
+   *  property is considered correct. (It is not proved correct, though).
+   */
   case object Passed extends Status
 
   /** ScalaCheck managed to prove the property correct */
@@ -129,18 +136,24 @@ object Test {
   /** The property was proved wrong with the given concrete arguments.  */
   sealed case class Failed(args: List[Arg[Any]], labels: Set[String]) extends Status
 
-  /** The property test was exhausted, it wasn't possible to generate enough
+  /**
+   * The property test was exhausted, it wasn't possible to generate enough
    *  concrete arguments satisfying the preconditions to get enough passing
-   *  property evaluations. */
+   *  property evaluations.
+   */
   case object Exhausted extends Status
 
-  /** An exception was raised when trying to evaluate the property with the
-   *  given concrete arguments. */
+  /**
+   * An exception was raised when trying to evaluate the property with the
+   *  given concrete arguments.
+   */
   sealed case class PropException(args: List[Arg[Any]], e: Throwable,
     labels: Set[String]) extends Status
 
-  /** An exception was raised when trying to generate concrete arguments
-   *  for evaluating the property. */
+  /**
+   * An exception was raised when trying to generate concrete arguments
+   *  for evaluating the property.
+   */
   sealed case class GenException(e: Throwable) extends Status
 
   trait TestCallback { self =>
@@ -153,31 +166,28 @@ object Test {
 
     def chain(testCallback: TestCallback) = new TestCallback {
       override def onPropEval(name: String, threadIdx: Int,
-        succeeded: Int, discarded: Int
-      ): Unit = {
-        self.onPropEval(name,threadIdx,succeeded,discarded)
-        testCallback.onPropEval(name,threadIdx,succeeded,discarded)
+        succeeded: Int, discarded: Int): Unit = {
+        self.onPropEval(name, threadIdx, succeeded, discarded)
+        testCallback.onPropEval(name, threadIdx, succeeded, discarded)
       }
 
       override def onTestResult(name: String, result: Result): Unit = {
-        self.onTestResult(name,result)
-        testCallback.onTestResult(name,result)
+        self.onTestResult(name, result)
+        testCallback.onTestResult(name, result)
       }
     }
   }
 
   private def assertParams(prms: Parameters) = {
     import prms._
-    if(
-      minSuccessfulTests <= 0 ||
+    if (minSuccessfulTests <= 0 ||
       maxDiscardRatio <= 0 ||
       minSize < 0 ||
       maxSize < minSize ||
-      workers <= 0
-    ) throw new IllegalArgumentException("Invalid test parameters")
+      workers <= 0) throw new IllegalArgumentException("Invalid test parameters")
   }
 
-  private def secure[T](x: => T): Either[T,Throwable] =
+  private def secure[T](x: => T): Either[T, Throwable] =
     try { Left(x) } catch { case e: Throwable => Right(e) }
 
   private[scalacheck] lazy val cmdLineParser = new CmdLineParser {
@@ -191,8 +201,8 @@ object Test {
       val names = Set("maxDiscardRatio", "r")
       val help =
         "The maximum ratio between discarded and succeeded tests " +
-        "allowed before ScalaCheck stops testing a property. At " +
-        "least minSuccessfulTests will always be tested, though."
+          "allowed before ScalaCheck stops testing a property. At " +
+          "least minSuccessfulTests will always be tested, though."
     }
     object OptMinSize extends IntOpt {
       val default = Parameters.default.minSize
@@ -217,38 +227,39 @@ object Test {
 
     val opts = Set[Opt[_]](
       OptMinSuccess, OptMaxDiscardRatio, OptMinSize,
-      OptMaxSize, OptWorkers, OptVerbosity
-    )
+      OptMaxSize, OptWorkers, OptVerbosity)
 
     def parseParams(args: Array[String]) = parseArgs(args) {
-      optMap => Parameters.default.copy(
-        _minSuccessfulTests = optMap(OptMinSuccess),
-        _maxDiscardRatio = optMap(OptMaxDiscardRatio),
-        _minSize = optMap(OptMinSize),
-        _maxSize = optMap(OptMaxSize),
-        _workers = optMap(OptWorkers),
-        _testCallback = ConsoleReporter(optMap(OptVerbosity))
-      )
+      optMap =>
+        Parameters.default.copy(
+          _minSuccessfulTests = optMap(OptMinSuccess),
+          _maxDiscardRatio = optMap(OptMaxDiscardRatio),
+          _minSize = optMap(OptMinSize),
+          _maxSize = optMap(OptMaxSize),
+          _workers = optMap(OptWorkers),
+          _testCallback = ConsoleReporter(optMap(OptVerbosity)))
     }
   }
 
-  /** Tests a property with the given testing parameters, and returns
-   *  the test results. */
+  /**
+   * Tests a property with the given testing parameters, and returns
+   *  the test results.
+   */
   def check(params: Parameters, p: Prop): Result = {
     import params._
 
     assertParams(params)
-    if(workers > 1) {
+    if (workers > 1) {
       assert(!p.isInstanceOf[Commands], "Commands cannot be checked multi-threaded")
     }
 
     val iterations = math.ceil(minSuccessfulTests / (workers: Double))
-    val sizeStep = (maxSize-minSize) / (iterations*workers)
+    val sizeStep = (maxSize - minSize) / (iterations * workers)
     var stop = false
     val genPrms = new Gen.Parameters.Default { override val rng = params.rng }
 
     def worker(workerIdx: Int): () => Result =
-      if (workers < 2) () => workerFun(workerIdx) 
+      if (workers < 2) () => workerFun(workerIdx)
       else spawn {
         params.customClassLoader.map(Thread.currentThread.setContextClassLoader(_))
         workerFun(workerIdx)
@@ -261,19 +272,19 @@ object Test {
     }
 
     def workerFun(workerIdx: Int) = {
-      var n = 0  // passed tests
-      var d = 0  // discarded tests
+      var n = 0 // passed tests
+      var d = 0 // discarded tests
       var res: Result = null
       var fm = FreqMap.empty[Set[Any]]
-      while(!stop && res == null && n < iterations) {
-        val size = (minSize: Double) + (sizeStep * (workerIdx + (workers*(n+d))))
+      while (!stop && res == null && n < iterations) {
+        val size = (minSize: Double) + (sizeStep * (workerIdx + (workers * (n + d))))
         val propPrms = genPrms.resize(size.round.toInt)
         secure(p(propPrms)) match {
           case Right(e) => res =
             Result(GenException(e), n, d, FreqMap.empty[Set[Any]])
           case Left(propRes) =>
             fm =
-              if(propRes.collected.isEmpty) fm
+              if (propRes.collected.isEmpty) fm
               else fm + propRes.collected
             propRes.status match {
               case Prop.Undecided =>
@@ -283,7 +294,7 @@ object Test {
                 // some margin, otherwise workers might stop testing too
                 // early because they have been exhausted, but the overall
                 // test has not.
-                if (n+d > minSuccessfulTests && 1+workers*maxDiscardRatio*n < d)
+                if (n + d > minSuccessfulTests && 1 + workers * maxDiscardRatio * n < d)
                   res = Result(Exhausted, n, d, fm)
               case Prop.True =>
                 n += 1
@@ -293,16 +304,16 @@ object Test {
                 res = Result(Proved(propRes.args), n, d, fm)
                 stop = true
               case Prop.False =>
-                res = Result(Failed(propRes.args,propRes.labels), n, d, fm)
+                res = Result(Failed(propRes.args, propRes.labels), n, d, fm)
                 stop = true
               case Prop.Exception(e) =>
-                res = Result(PropException(propRes.args,e,propRes.labels), n, d, fm)
+                res = Result(PropException(propRes.args, e, propRes.labels), n, d, fm)
                 stop = true
             }
         }
       }
       if (res == null) {
-        if (maxDiscardRatio*n > d) Result(Passed, n, d, fm)
+        if (maxDiscardRatio * n > d) Result(Passed, n, d, fm)
         else Result(Exhausted, n, d, fm)
       } else res
     }
@@ -311,37 +322,38 @@ object Test {
       val Result(st1, s1, d1, fm1, _) = r1()
       val Result(st2, s2, d2, fm2, _) = r2()
       if (st1 != Passed && st1 != Exhausted)
-        () => Result(st1, s1+s2, d1+d2, fm1++fm2, 0)
+        () => Result(st1, s1 + s2, d1 + d2, fm1 ++ fm2, 0)
       else if (st2 != Passed && st2 != Exhausted)
-        () => Result(st2, s1+s2, d1+d2, fm1++fm2, 0)
+        () => Result(st2, s1 + s2, d1 + d2, fm1 ++ fm2, 0)
       else {
-        if (s1+s2 >= minSuccessfulTests && maxDiscardRatio*(s1+s2) >= (d1+d2))
-          () => Result(Passed, s1+s2, d1+d2, fm1++fm2, 0)
+        if (s1 + s2 >= minSuccessfulTests && maxDiscardRatio * (s1 + s2) >= (d1 + d2))
+          () => Result(Passed, s1 + s2, d1 + d2, fm1 ++ fm2, 0)
         else
-          () => Result(Exhausted, s1+s2, d1+d2, fm1++fm2, 0)
+          () => Result(Exhausted, s1 + s2, d1 + d2, fm1 ++ fm2, 0)
       }
     }
 
     val start = System.currentTimeMillis
-    val results = for(i <- 0 until workers) yield worker(i)
+    val results = for (i <- 0 until workers) yield worker(i)
     val r = results.reduceLeft(mergeResults)()
     stop = true
     results foreach (_.apply())
-    val timedRes = r.copy(time = System.currentTimeMillis-start)
+    val timedRes = r.copy(time = System.currentTimeMillis - start)
     params.testCallback.onTestResult("", timedRes)
     timedRes
   }
 
   /** Check a set of properties. */
-  def checkProperties(prms: Parameters, ps: Properties): Seq[(String,Result)] =
-    ps.properties.map { case (name,p) =>
-      val testCallback = new TestCallback {
-        override def onPropEval(n: String, t: Int, s: Int, d: Int) =
-          prms.testCallback.onPropEval(name,t,s,d)
-        override def onTestResult(n: String, r: Result) =
-          prms.testCallback.onTestResult(name,r)
-      }
-      val res = check(prms copy (_testCallback = testCallback), p)
-      (name,res)
+  def checkProperties(prms: Parameters, ps: Properties): Seq[(String, Result)] =
+    ps.properties.map {
+      case (name, p) =>
+        val testCallback = new TestCallback {
+          override def onPropEval(n: String, t: Int, s: Int, d: Int) =
+            prms.testCallback.onPropEval(name, t, s, d)
+          override def onTestResult(n: String, r: Result) =
+            prms.testCallback.onTestResult(name, r)
+        }
+        val res = check(prms copy (_testCallback = testCallback), p)
+        (name, res)
     }
 }

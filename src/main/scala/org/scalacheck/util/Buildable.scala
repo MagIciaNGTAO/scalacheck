@@ -11,8 +11,8 @@ package org.scalacheck.util
 
 import collection._
 
-trait Buildable[T,C[_]] {
-  def builder: mutable.Builder[T,C[T]]
+trait Buildable[T, C[_]] {
+  def builder: mutable.Builder[T, C[T]]
   def fromIterable(it: Traversable[T]): C[T] = {
     val b = builder
     b ++= it
@@ -20,9 +20,9 @@ trait Buildable[T,C[_]] {
   }
 }
 
-trait Buildable2[T,U,C[_,_]] {
-  def builder: mutable.Builder[(T,U),C[T,U]]
-  def fromIterable(it: Traversable[(T,U)]): C[T,U] = {
+trait Buildable2[T, U, C[_, _]] {
+  def builder: mutable.Builder[(T, U), C[T, U]]
+  def fromIterable(it: Traversable[(T, U)]): C[T, U] = {
     val b = builder
     b ++= it
     b.result()
@@ -32,14 +32,14 @@ trait Buildable2[T,U,C[_,_]] {
 object Buildable {
   import generic.CanBuildFrom
 
-  implicit def buildableCanBuildFrom[T, C[_]](implicit c: CanBuildFrom[C[_], T, C[T]]) = 
+  implicit def buildableCanBuildFrom[T, C[_]](implicit c: CanBuildFrom[C[_], T, C[T]]) =
     new Buildable[T, C] {
       def builder = c.apply
     }
 
   import java.util.ArrayList
-  implicit def buildableArrayList[T] = new Buildable[T,ArrayList] {
-    def builder = new mutable.Builder[T,ArrayList[T]] {
+  implicit def buildableArrayList[T] = new Buildable[T, ArrayList] {
+    def builder = new mutable.Builder[T, ArrayList[T]] {
       val al = new ArrayList[T]
       def +=(x: T) = {
         al.add(x)
@@ -53,24 +53,24 @@ object Buildable {
 }
 
 object Buildable2 {
-  
-  implicit def buildableMutableMap[T,U] = new Buildable2[T,U,mutable.Map] {
+
+  implicit def buildableMutableMap[T, U] = new Buildable2[T, U, mutable.Map] {
     def builder = mutable.Map.newBuilder
   }
 
-  implicit def buildableImmutableMap[T,U] = new Buildable2[T,U,immutable.Map] {
+  implicit def buildableImmutableMap[T, U] = new Buildable2[T, U, immutable.Map] {
     def builder = immutable.Map.newBuilder
   }
 
-  implicit def buildableMap[T,U] = new Buildable2[T,U,Map] {
+  implicit def buildableMap[T, U] = new Buildable2[T, U, Map] {
     def builder = Map.newBuilder
   }
 
-  implicit def buildableImmutableSortedMap[T: Ordering, U] = new Buildable2[T,U,immutable.SortedMap] {
+  implicit def buildableImmutableSortedMap[T: Ordering, U] = new Buildable2[T, U, immutable.SortedMap] {
     def builder = immutable.SortedMap.newBuilder
   }
 
-  implicit def buildableSortedMap[T: Ordering, U] = new Buildable2[T,U,SortedMap] {
+  implicit def buildableSortedMap[T: Ordering, U] = new Buildable2[T, U, SortedMap] {
     def builder = SortedMap.newBuilder
   }
 
